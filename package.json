@@ -1,0 +1,24 @@
+{
+  "name": "shishaapi",
+  "version": "1.0.0",
+  "description": "API for ShishaApp",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon --exec babel-node index.js",
+    "migrator": "node ./db/migrate-dev.js"
+  },
+  "author": "ohmarinseries",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "^7.14.6",
+    "@babel/node": "^7.14.5",
+    "@babel/preset-env": "^7.14.5",
+    "cloudinary": "^1.26.1",
+    "dotenv": "^8.6.0",
+    "express": "^4.17.1",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.9",
+    "pg": "^8.6.0",
+    "sql-migrations": "^1.0.6"
+  }
+}
