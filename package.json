@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon --exec babel-node index.js",
-    "migrator": "node ./db/migrate-dev.js"
+    "migrate": "node ./db/migrate-dev.js migrate"
   },
   "author": "ohmarinseries",
   "license": "ISC",
@@ -14,11 +14,13 @@
     "@babel/node": "^7.14.5",
     "@babel/preset-env": "^7.14.5",
     "cloudinary": "^1.26.1",
+    "cors": "^2.8.5",
     "dotenv": "^8.6.0",
     "express": "^4.17.1",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.9",
     "pg": "^8.6.0",
+    "postgres-migrations": "^5.2.0",
     "sql-migrations": "^1.0.6"
   }
 }
