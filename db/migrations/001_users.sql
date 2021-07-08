@@ -3,5 +3,8 @@ CREATE TABLE IF NOT EXISTS users(
     username VARCHAR(30) NOT NULL ,
     email VARCHAR(30) NOT NULL,
     pass VARCHAR(200) NOT NULL,
-    desctiption TEXT
+    profile_image VARCHAR(1000),
+    desctiption TEXT,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
