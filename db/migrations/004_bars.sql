@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS bars(
     id SERIAL PRIMARY KEY,
     bar_name VARCHAR(50) NOT NULL,
     hookah_id integer,
+    city VARCHAR(50) NOT NULL,
     street_address VARCHAR(50) NOT NULL,
     email VARCHAR(50) NOT NULL,
     pass VARCHAR(200) NOT NULL,
