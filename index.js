@@ -2,6 +2,8 @@ import express from "express"
 import dotenv from "dotenv"
 import morgan from "morgan"
 import cors from "cors"
+import client from "./db/client"
+import userRoutes from "./routes/users.route"
 
 dotenv.config();
 
@@ -16,9 +18,10 @@ if(process.env.ENV === "local"){
 }
 
 app.get('/', (req, res) => {
-    res.send('Connection Established');
+   
 });
 
+app.use('/user', userRoutes);
 
 require("./db/migrate-dev")();
 

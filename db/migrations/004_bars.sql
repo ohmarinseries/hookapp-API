@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS bars(
     city VARCHAR(50) NOT NULL,
     street_address VARCHAR(50) NOT NULL,
     email VARCHAR(50) NOT NULL,
-    pass VARCHAR(200) NOT NULL,
+    pass VARCHAR(1000) NOT NULL,
     profile_image VARCHAR(1000),
     description TEXT,
 
