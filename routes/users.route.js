@@ -1,7 +1,6 @@
 import express from "express"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
-import {registerSchema} from "../validate"
 import Joi from "@hapi/joi";
 
 const router = express.Router();
@@ -64,6 +63,44 @@ router.post('/register', async (req, res) => {
 
   })
 
+ router.put('/updateprofile', auth, async (req, res) => {
+
+  let user = await db.client.query(`SELECT * FROM users WHERE id = ${req.body.data.id}`);
+
+  let usernameCheck = await db.client.query(`SELECT * FROM users WHERE username = '${req.body.data.username}'`);
+  if(usernameCheck.rows.length != 0) return res.status(400).send('Username already in use');
+
+  if(req.body.data.username === undefined) req.body.data.username = user.rows[0].username;
+  if(req.body.data.description === undefined) req.body.data.description = user.rows[0].description;
+
+  await db.client.query(`UPDATE "users" SET 
+  "username" = '${req.body.data.username}',
+  "description" = '${req.body.data.description}'
+  WHERE "id" = ${req.body.data.id}`);  
   
+  res.status(200).send('Updated user info');
+
+ }) 
+
+router.get('/profile/:id', auth, async (req, res) => {
+ let Data = {
+    profileInfo : [],
+    posts : []
+  }
+  Data.profileInfo = await (await db.client.query(`SELECT * FROM users WHERE id = ${req.params.id}`)).rows;
+  Data.posts = await (await db.client.query(`SELECT * FROM posts WHERE users_id = ${req.params.id}`)).rows;
+ 
+  res.status(200).send(Data);
+
+})
+
+router.post('/follow/:id', auth, async (req, res) => {
+
+
+})
+
+router.delete('/unfollow/:id', auth, async (req, res) => {
+
+})
 
 export default router

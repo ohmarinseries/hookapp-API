@@ -3,7 +3,7 @@ import dotenv from "dotenv"
 import morgan from "morgan"
 import cors from "cors"
 import client from "./db/client"
-import userRoutes from "./routes/users.route"
+
 
 dotenv.config();
 
@@ -21,7 +21,11 @@ app.get('/', (req, res) => {
    
 });
 
+import userRoutes from "./routes/users.route"
+import postsRoutes from "./routes/posts.route"
+
 app.use('/user', userRoutes);
+app.use('/posts', postsRoutes);
 
 require("./db/migrate-dev")();
 
