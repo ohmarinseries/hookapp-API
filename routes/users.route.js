@@ -37,9 +37,21 @@ router.post('/register', async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.data.password, salt);
+
+    let uploadRes
+    try{
+        uploadRes = await cloudinary.uploader.upload(req.body.data.imagebase64,
+            {
+            upload_preset: 'defaultpreset'
+    
+            }) 
+       
+        }catch(error){
+            res.status(400).send('Upload Failed!');
+        }
   
     try{
-        let dbres = db.client.query(`INSERT INTO users ("username", "email", "pass") VALUES ('${req.body.data.username}', '${req.body.data.email}', '${hashedPassword}')`);
+        let dbres = db.client.query(`INSERT INTO users ("username", "email", "pass", "profile_image") VALUES ('${req.body.data.username}', '${req.body.data.email}', '${hashedPassword}', '${uploadRes.url}')`);
           res.status(200).send('User created');        
       }catch(err){
           res.status(400).send(err);
@@ -85,11 +97,19 @@ router.post('/register', async (req, res) => {
 router.get('/profile/:id', auth, async (req, res) => {
  let Data = {
     profileInfo : [],
-    posts : []
+    posts : [],
+    followerCount : [],
+    followState : false
   }
+  let followCheck;
+
   Data.profileInfo = await (await db.client.query(`SELECT * FROM users WHERE id = ${req.params.id}`)).rows;
   Data.posts = await (await db.client.query(`SELECT * FROM posts WHERE users_id = ${req.params.id}`)).rows;
- 
+  Data.followerCount = await (await db.client.query(`SELECT COUNT(id) AS followernum FROM followers WHERE users_id = ${req.params.id}`)).rows[0].followernum;
+  
+  followCheck = await db.client.query(`SELECT * FROM followers WHERE users_id`)
+  
+
   res.status(200).send(Data);
 
 })
