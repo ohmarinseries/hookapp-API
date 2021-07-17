@@ -51,7 +51,7 @@ router.post('/register', async (req, res) => {
         }
   
     try{
-        let dbres = db.client.query(`INSERT INTO users ("username", "email", "pass", "profile_image") VALUES ('${req.body.data.username}', '${req.body.data.email}', '${hashedPassword}', '${uploadRes.url}')`);
+        db.client.query(`INSERT INTO users ("username", "email", "pass", "profile_image") VALUES ('${req.body.data.username}', '${req.body.data.email}', '${hashedPassword}', '${uploadRes.url}')`);
           res.status(200).send('User created');        
       }catch(err){
           res.status(400).send(err);
@@ -115,11 +115,46 @@ router.get('/profile/:id', auth, async (req, res) => {
 })
 
 router.post('/follow/:id', auth, async (req, res) => {
-
-
+   try{
+     db.client.query(`INSERT INTO followers (users_id, follow_id) VALUES (${req.params.id}, ${req.body.data.id})`);
+     res.status(200).send('User Followed');
+   }catch(error){
+     res.status(400).send('Follow Failed', error);
+   }
 })
 
 router.delete('/unfollow/:id', auth, async (req, res) => {
+  try{
+    db.client.query(`DELETE FROM followers WHERE users_id = ${req.params.id} and follow_id = ${req.body.data.id}`);
+    res.status(200).send('User Unfollowed');
+  }catch(error){
+    res.status(400).send('Unfollow Failed', error);
+  }
+
+})
+
+
+router.put('/updateprofilepicture', auth, async (req, res) => {
+  let uploadRes
+    try{
+        uploadRes = await cloudinary.uploader.upload(req.body.data.imagebase64,
+            {
+            upload_preset: 'defaultpreset'
+    
+            }) 
+       
+        }catch(error){
+            res.status(400).send('Upload Failed!');
+        }
+     
+     
+    try{
+      db.client.query(`UPDATE users SET profile_image = '${uploadRes.url}' WHERE id = ${req.body.data.id}`);
+      res.status(200).send('Image Updated');
+     }catch(error){
+      res.status(400).send('Update Failed');
+     }  
+
 
 })
 
