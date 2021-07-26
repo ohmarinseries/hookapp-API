@@ -23,9 +23,13 @@ app.get('/', (req, res) => {
 
 import userRoutes from "./routes/users.route"
 import postsRoutes from "./routes/posts.route"
+import barsRoutes from "./routes/bars.route"
+import uploadRoutes from "./routes/upload.route"
 
 app.use('/user', userRoutes);
 app.use('/posts', postsRoutes);
+app.use('/bars', barsRoutes);
+app.use('/upload', uploadRoutes);
 
 require("./db/migrate-dev")();
 
