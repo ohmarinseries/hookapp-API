@@ -1,4 +1,4 @@
-import express from "express"
+import express, { response } from "express"
 
 const router = express.Router();
 
@@ -86,7 +86,7 @@ router.delete('/:id', auth, async (req, res) => {
 router.put('/:id', auth, async (req, res) => {
     const schema = Joi.object({
         description : Joi.string()
-                     .required()          
+                         .required()          
     });
     
     const {error} = Joi.validate(req.body.data, schema);
@@ -100,5 +100,24 @@ router.put('/:id', auth, async (req, res) => {
     }
 
 });
+
+router.put('/comment/:id', auth, async (req, res) => {
+    const schema = Joi.object({
+        comment : Joi.string()
+                     .required()          
+    });
+    
+    const {error} = Joi.validate(req.body.data, schema);
+    if(error) return res.status(400).send(error.details[0].message);
+
+    try{
+        await db.client.query(`UPDATE comments SET comment = '${req.body.data.comment}' WHERE id = ${req.params.id}`);
+        res.status(200).send('Comment Updated!');
+    }catch(err){
+        res.status(500).send('Failed to update comment!', err);
+    }
+});
+
+
 
 export default router;

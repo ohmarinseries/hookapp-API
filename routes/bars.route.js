@@ -134,3 +134,63 @@ try{
   res.status(500).send('Failed to update bar profile!', err);
 }
 });
+
+router.post('/review/:id', auth, async (req, res) => {
+  const schema = Joi.object({
+    description : Joi.string()
+                     .required()
+                     .min(5)
+                     .max(1000),
+    score :       Joi.number()
+                     .min(1)
+                     .max(5)
+                          
+});
+
+const {error} = Joi.validate(req.body.data, schema);
+if(error) return res.status(400).send(error.details[0].message);
+
+try{
+  await db.client.query(`INSERT INTO barreview (bars_id, users_id, description, score) VALUES (${req.params.id}, ${req.body.data.id}, '${req.body.data.description}', ${req.body.data.score})`);
+  res.status(200).send('Bar Scored!');
+}catch(err){
+  res.status(500).send('Failed to score bar!', err);
+}
+
+
+});
+
+
+router.delete('/review/:id', auth, async (req, res) => {
+  try{
+    await db.client.query(`DELETE FROM barreview WHERE id = ${req.params.id}`);
+    res.status(200).send('Review Deleted!');
+  }catch(err){
+    res.status(500).send('Failed to delete review!', err);
+  }
+});
+
+
+router.put('/review/:id', auth, async (req, res) => {
+  const schema = Joi.object({
+    description : Joi.string()
+                     .required()
+                     .min(5)
+                     .max(1000),
+    score :       Joi.number()
+                     .min(1)
+                     .max(5)
+                          
+});
+
+const {error} = Joi.validate(req.body.data, schema);
+if(error) return res.status(400).send(error.details[0].message);
+
+try{
+ await db.client.query(`UPDATE barreview SET description = '${req.body.data.description}' and score = ${req.body.data.score} WHERE id = ${req.params.id}`)
+}catch(err){
+
+}
+
+
+});
