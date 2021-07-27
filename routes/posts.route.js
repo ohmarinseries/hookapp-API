@@ -26,7 +26,7 @@ router.post('/post', auth, async (req, res) => {
         }
 
       try{
-       await db.client.query(`INSERT INTO postimages (post_id, image_url) VALUES (${insertId}, '${uploadRes.url}')`);
+       await db.client.query(`INSERT INTO postimages (post_id, image_url) VALUES (${insertId}, '${req.body.data.imageurl}')`);
        res.status(200).send('Posted');
       } catch(error){
           console.error(error);
