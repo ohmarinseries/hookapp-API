@@ -25,11 +25,13 @@ import userRoutes from "./routes/users.route"
 import postsRoutes from "./routes/posts.route"
 import barsRoutes from "./routes/bars.route"
 import uploadRoutes from "./routes/upload.route"
+import combinationsRoute from "./routes/combs.route"
 
 app.use('/user', userRoutes);
 app.use('/posts', postsRoutes);
 app.use('/bars', barsRoutes);
 app.use('/upload', uploadRoutes);
+app.use('/combinations', combinationsRoute);
 
 require("./db/migrate-dev")();
 
