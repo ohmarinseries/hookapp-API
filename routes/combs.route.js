@@ -96,9 +96,20 @@ router.post('/comment/:id', auth, async (req, res) => {
     if(error) return res.status(400).send(error.details[0].message);
 
     try{
-      await db.client.query(`INSERT INTO combcomments (combo_id, users_id, comment) VALUES (${req.params.id}, ${req.body.data.id}, '${req.}')`)  
+      await db.client.query(`INSERT INTO combcomments (combo_id, users_id, comment) VALUES (${req.params.id}, ${req.body.data.id}, '${req.body.data.comment}')`);
+      res.status(200).send('Comment added on combination!');
     }catch(err){
+      res.status(500).send('Failed to add comment on combination!', err);
+    }
 
+});
+
+router.post('/comment/like/:id', auth, async (req, res) => {
+    try{
+      await db.client.query(`INSERT INTO combcomlikes (comment_id, users_id) VALUES (${req.params.id}, ${req.body.data.id})`);
+      res.status(200).send('Like added to combination comment!');
+    }catch(err){
+      res.status(500).send('Fail!', err);
     }
 
 });
