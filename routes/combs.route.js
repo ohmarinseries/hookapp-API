@@ -85,11 +85,28 @@ router.put('/:id', auth, async (req, res) => {
 
 });
 
+router.post('/like/:id', auth, async (req, res) => {
+    let check = await db.client.query(`SELECT * FROM comblikes WHERE combo_id = ${req.params.id} and users_id = ${req.body.data.id}`);
+    if(check.rows.length != 0){
+        await db.client.query(`DELETE FROM comblikes WHERE combo_id = ${req.params.id} and users_id = ${req.body.data.id}`);
+    }
+    
+    
+     try{
+       await db.client.query(`INSERT INTO combcomlikes (combo_id, users_id) VALUES (${req.params.id}, ${req.body.data.id})`);
+       res.status(200).send('Like added to combination!');
+     }catch(err){
+       res.status(500).send('Fail!', err);
+     }
+
+
+});
+
 router.post('/comment/:id', auth, async (req, res) => {
     const schema = Joi.object({
         comment : Joi.string()
-                              .required()
-                              .max(500)
+                     .required()
+                     .max(500)
     });
     
     const {error} = Joi.validate(req.body.data, schema);
@@ -104,7 +121,27 @@ router.post('/comment/:id', auth, async (req, res) => {
 
 });
 
+router.delete('/comment/:id', auth, async (req, res) => {
+    try{
+       await db.client.query(`DELETE FROM combcomlikes WHERE comment_id = ${req.params.id}`);
+       await db.client.query(`DELETE FROM combcomdislikes WHERE comment_id = ${req.params.id}`);
+       await db.client.query(`DELETE FROM combcomments WHERE id = ${req.params.id}`);
+       
+       res.status(200).send('Comment deleted!');
+
+    }catch(err){
+       res.status(500).send('Failed to delete comment!', err);
+    }
+});
+
 router.post('/comment/like/:id', auth, async (req, res) => {
+   
+   let check = await db.client.query(`SELECT * FROM combcomdislikes WHERE comment_id = ${req.params.id} and users_id = ${req.body.data.id}`);
+   if(check.rows.length != 0){
+       await db.client.query(`DELETE FROM combcomdislikes WHERE comment_id = ${req.params.id} and users_id = ${req.body.data.id}`);
+   }
+   
+   
     try{
       await db.client.query(`INSERT INTO combcomlikes (comment_id, users_id) VALUES (${req.params.id}, ${req.body.data.id})`);
       res.status(200).send('Like added to combination comment!');
@@ -113,6 +150,44 @@ router.post('/comment/like/:id', auth, async (req, res) => {
     }
 
 });
+
+router.post('/comment/dislike/:id', auth, async (req, res) => {
+
+    let check = await db.client.query(`SELECT * FROM combcomlikes WHERE comment_id = ${req.params.id} and users_id = ${req.body.data.id}`);
+    if(check.rows.length != 0){
+        await db.client.query(`DELETE FROM combcomlikes WHERE comment_id = ${req.params.id} and users_id = ${req.body.data.id}`);
+    }
+    
+    
+     try{
+       await db.client.query(`INSERT INTO combcomdislikes (comment_id, users_id) VALUES (${req.params.id}, ${req.body.data.id})`);
+       res.status(200).send('DIslike added to combination comment!');
+     }catch(err){
+       res.status(500).send('Fail!', err);
+     }
+
+});
+
+router.put('/comment/:id', auth, async (req, res) => {
+    const schema = Joi.object({
+        comment : Joi.string()
+                     .required()
+                     .max(500)
+    });
+    
+    const {error} = Joi.validate(req.body.data, schema);
+    if(error) return res.status(400).send(error.details[0].message);
+
+
+    try{
+        await db.client.query(`UPDATE combcomments SET comment = ${req.body.data.comment} WHERE comment_id = ${req.params.id} and users_id = ${req.body.data.id}`);
+        res.status(200).send('Combination comment updated!');
+    }catch(err){
+        res.status(500).send('Failed to update comment!', err);
+    }
+
+});
+
 
 
 export default router;
