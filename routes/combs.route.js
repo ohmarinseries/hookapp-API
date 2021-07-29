@@ -35,4 +35,73 @@ router.post('/', auth, async (req, res) => {
 
 });
 
+router.delete('/:id', auth, async (req, res) => {
+    try{
+        await db.client.query(`DELETE FROM headingredients WHERE combo_id = ${req.params.id}`);
+        await db.client.query(`DELETE FROM combcomments WHERE combo_id = ${req.params.id}`);
+        await db.client.query(`DELETE FROM comblikes WHERE combo_id = ${req.params.id}`);
+        await db.client.query(`DELETE FROM combdislikes WHERE combo_id = ${req.params.id}`);
+        await db.client.query(`DELETE FROM combcomlikes WHERE combo_id = ${req.params.id}`);
+        await db.client.query(`DELETE FROM combcomdislikes WHERE combo_id = ${req.params.id}`);
+        await db.client.query(`DELETE FROM flavourcombs WHERE combo_id = ${req.params.id}`);
+
+        res.status(200).send('Combination deleted!');
+    }catch(err){
+        res.status(500).send('Failed to delete combination!', err);
+    }
+});
+
+router.put('/:id', auth, async (req, res) => {
+    const schema = Joi.object({
+        base_ingredients : Joi.string()
+                              .required()
+                              .max(500),
+        description :      Joi.string()
+                              .required()
+                              .min(10)
+                              .max(1000) 
+    });
+    
+    const {error} = Joi.validate(req.body.data, schema);
+    if(error) return res.status(400).send(error.details[0].message);
+
+    try{
+        await db.client.query(`UPDATE flavourcombs SET base_ingredients = '${req.body.data.base_ingredients}', description = '${req.body.data.description}' WHERE id = ${req.params.id}`);
+    }catch(err){
+        res.status(500).send('Error A');
+    }
+
+    await db.client.query(`DELETE FROM headingredients WHERE combo_id = ${req.params.id}`);
+
+    try{
+        for(let i = 0 ; i < req.body.data.headingredient.length ; i++){
+            await db.client.query(`INSERT INTO headingredients (combo_id, flavour_id, precentage) VALUES (${req.params.id}, ${req.body.data.headingredient[i].flavourid}, ${req.body.data.headingredient[i].precentage})`);
+        }
+        res.status(200).send('SUCCESS');
+    }catch(err){
+        res.status(500).send('ERROR', err);    
+        }
+
+
+});
+
+router.post('/comment/:id', auth, async (req, res) => {
+    const schema = Joi.object({
+        comment : Joi.string()
+                              .required()
+                              .max(500)
+    });
+    
+    const {error} = Joi.validate(req.body.data, schema);
+    if(error) return res.status(400).send(error.details[0].message);
+
+    try{
+      await db.client.query(`INSERT INTO combcomments (combo_id, users_id, comment) VALUES (${req.params.id}, ${req.body.data.id}, '${req.}')`)  
+    }catch(err){
+
+    }
+
+});
+
+
 export default router;
