@@ -79,8 +79,8 @@ router.post('/register', async (req, res) => {
   WHERE "id" = ${req.body.data.id}`);  
   
    res.status(200).send('Updated user info');
-  }catch(error){
-   res.status(500).send('Update Failed');
+  }catch(err){
+   res.status(500).send('Update Failed', err);
   }
  }) 
 
@@ -92,24 +92,26 @@ router.get('/profile/:id', auth, async (req, res) => {
     followState : false
   }
   let followCheck;
-
+try{
   Data.profileInfo = await (await db.client.query(`SELECT * FROM users WHERE id = ${req.params.id}`)).rows;
   Data.posts = await (await db.client.query(`SELECT * FROM posts WHERE users_id = ${req.params.id}`)).rows;
   Data.followerCount = await (await db.client.query(`SELECT COUNT(id) AS followernum FROM followers WHERE users_id = ${req.params.id}`)).rows[0].followernum;
   
-  followCheck = await db.client.query(`SELECT * FROM followers WHERE users_id`)
-  
+  followCheck = await (await db.client.query(`SELECT * FROM followers WHERE users_id = ${req.params.id}`)).rows;
+  if(followCheck.length != 0) Data.followState = true;
 
   res.status(200).send(Data);
-
+  }catch(err){
+  res.status(500).send('Failed to get profile info!', err);
+  }
 })
 
 router.post('/follow/:id', auth, async (req, res) => {
    try{
     await db.client.query(`INSERT INTO followers (users_id, follow_id) VALUES (${req.params.id}, ${req.body.data.id})`);
      res.status(200).send('User Followed');
-   }catch(error){
-     res.status(500).send('Follow Failed', error);
+   }catch(err){
+     res.status(500).send('Follow Failed', err);
    }
 })
 
@@ -117,8 +119,8 @@ router.delete('/unfollow/:id', auth, async (req, res) => {
   try{
    await db.client.query(`DELETE FROM followers WHERE users_id = ${req.params.id} and follow_id = ${req.body.data.id}`);
     res.status(200).send('User Unfollowed');
-  }catch(error){
-    res.status(500).send('Unfollow Failed', error);
+  }catch(err){
+    res.status(500).send('Unfollow Failed', err);
   }
 
 })
@@ -129,8 +131,8 @@ router.put('/updateprofilepicture', auth, async (req, res) => {
     try{
       db.client.query(`UPDATE users SET profile_image = '${req.body.data.imageurl}' WHERE id = ${req.body.data.id}`);
       res.status(200).send('Image Updated');
-     }catch(error){
-      res.status(500).send('Update Failed');
+     }catch(err){
+      res.status(500).send('Update Failed', err);
      }  
 
 

@@ -26,8 +26,8 @@ router.post('/', auth, async (req, res) => {
             }) 
         res.status(200).send(uploadResponse.url, 'Upload Successful')    
        
-        }catch(error){
-            res.status(500).send('Upload Failed!');
+        }catch(err){
+            res.status(500).send('Upload Failed!', err);
         }
 
 })

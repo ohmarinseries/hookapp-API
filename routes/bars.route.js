@@ -62,7 +62,7 @@ router.post('/login', async (req, res) => {
   
       const token = jwt.sign({'id' : loginData.rows[0].id}, process.env.TOKEN_SECRET);
   
-      res.header('auth-token', token).send(token);
+      res.status(200).header('auth-token', token).send(token);
   
     })
 
@@ -79,8 +79,8 @@ try{
 await db.client.query(`INSERT INTO bargallery (bars_id, image_url) VALUES (${req.body.data.id}, "${req.body.data.imageurl}")`)
 res.status(200).send('Image added to gallery!');
 
-}catch(error){
-res.status(500).send('Failed to insert into gallery!', error);
+}catch(err){
+res.status(500).send('Failed to insert into gallery!', err);
 }
 })
 
@@ -97,8 +97,8 @@ router.get('/:id', auth, async (req, res) => {
      `);
     Data.gallery = await db.client.query(`SELECT * FROM bargallery WHERE bars_id = ${req.params.id}`);
     res.status(200).send(Data);
-    }catch(error){
-    res.status(500).send('Failed to get bar!', error);
+    }catch(err){
+    res.status(500).send('Failed to get bar!', err);
     }
 });
 
