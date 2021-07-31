@@ -12,7 +12,7 @@ ALTER TABLE combcomments
  FOREIGN KEY (combo_id)
  REFERENCES flavourcombs (id);
  
-ALTER TABLE flavourcombs
+ALTER TABLE combcomments
  ADD CONSTRAINT fk_users
  FOREIGN KEY (users_id)
  REFERENCES users (id);

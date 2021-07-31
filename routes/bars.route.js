@@ -194,3 +194,5 @@ try{
 
 
 });
+
+export default router;

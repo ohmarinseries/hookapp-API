@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS bars(
     pass VARCHAR(1000) NOT NULL,
     profile_image VARCHAR(1000),
     description TEXT,
-    verification BIT DEFAULT 0,
+    verification BIT,
 
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
