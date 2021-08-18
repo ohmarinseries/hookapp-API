@@ -187,9 +187,10 @@ const {error} = Joi.validate(req.body.data, schema);
 if(error) return res.status(400).send(error.details[0].message);
 
 try{
- await db.client.query(`UPDATE barreview SET description = '${req.body.data.description}' and score = ${req.body.data.score} WHERE id = ${req.params.id}`)
+ await db.client.query(`UPDATE barreview SET description = '${req.body.data.description}' and score = ${req.body.data.score} WHERE id = ${req.params.id}`);
+ res.status(200).send('Review Updated!');
 }catch(err){
-
+ res.status(500).send('Failed to update review!', err);
 }
 
 
