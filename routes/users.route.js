@@ -14,6 +14,68 @@ import auth from "../middleware/check_token";
 
 dotenv.config();
 
+const mailSender = async (reciverMail) =>{
+    let cloneString;
+
+    const verficationString = randomstring.generate({
+        'charset': 'alphanumeric',
+        'length': 100
+    });
+    try {
+        cloneString = await db.client.query(`SELECT * FROM tokens WHERE token = '${verficationString}'`);
+    }catch (error) {
+        console.error(error)
+    }
+    console.log(verficationString);
+
+    while(cloneString.rows.length !== 0) {
+
+        const verficationString = randomstring.generate({
+            'charset': 'alphanumeric',
+            'length': 100
+        });
+        try {
+            cloneString = await db.client.query(`SELECT * FROM tokens WHERE token = '${verficationString}'`);
+        }catch (error) {
+            console.error(error)
+        }
+        console.log(verficationString);
+    }
+
+    let transporter = nodemailer.createTransport({
+        host: 'smtppro.zoho.eu',
+        port: 587,
+        secure: false,
+        auth: {
+            user: 'omar@debugger.team',
+            pass: `${process.env.EMAIL_PASS}`
+        },
+        tls:{
+            rejectUnauthorized:false
+        }
+    });
+
+
+    let mailOptions = {
+        from: 'omar@debugger.team',
+        to: `${reciverMail}`,
+        subject: 'Email verification',
+        text: 'Click the link below',
+        html: `
+            <a href="http://localhost:3000/user/verify-email?token=${verficationString}">Verify Email</a>
+            `
+    };
+
+    await transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return console.log(error);
+        }
+        console.log('Message sent: %s', info.messageId);
+        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+
+    });
+}
+
 router.post('/register', async (req, res) => {
 
     const schema = Joi.object({
@@ -43,67 +105,8 @@ router.post('/register', async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.data.password, salt);
 
-    let cloneString;
+    await mailSender(req.body.data.email);
 
-    const verficationString = randomstring.generate({
-        'charset': 'alphanumeric',
-        'length': 100
-    });
-    try {
-        cloneString = await db.client.query(`SELECT * FROM tokens WHERE token = '${verficationString}'`);
-    }catch (error) {
-        console.error(error)
-    }
-    console.log(verficationString);
-
-    while(cloneString.rows.length !== 0) {
-
-        const verficationString = randomstring.generate({
-            'charset': 'alphanumeric',
-            'length': 100
-        });
-        try {
-      cloneString = await db.client.query(`SELECT * FROM tokens WHERE token = '${verficationString}'`);
-        }catch (error) {
-         console.error(error)
-        }
-        console.log(verficationString);
-    }
-
-        let transporter = nodemailer.createTransport({
-            host: 'smtppro.zoho.eu',
-            port: 587,
-            secure: false,
-            auth: {
-                user: 'omar@debugger.team',
-                pass: `${process.env.EMAIL_PASS}`
-            },
-            tls:{
-                rejectUnauthorized:false
-            }
-        });
-
-
-        let mailOptions = {
-            from: 'omar@debugger.team',
-            to: 'omar.hurem@gmail.com',
-            subject: 'Email verification',
-            text: 'Click the link below',
-            html: `
-            <a href="http://localhost:3000/user/verify-email?token=${verficationString}">Verify Email</a>
-            `
-        };
-
-   await transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            return console.log(error);
-        }
-        console.log('Message sent: %s', info.messageId);
-        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-
-    });
-
-  
     try{
         db.client.query(`INSERT INTO users ("username", "email", "pass", "profile_image") VALUES ('${req.body.data.username}', '${req.body.data.email}', '${hashedPassword}', '${req.body.data.imageurl}')`);
           res.status(200).send('User created');        
